@@ -4,16 +4,18 @@ import { config } from '../config';
 import { IServiceRegistry, ServiceRegistry } from '../service';
 import { TodoController } from './todo.controller';
 
+/**
+ * Starts the express service by exposing the REST API endpoints
+ * through the controler methods.
+ */
 export const startExpressService = () => {
+  
   const app = express();
-
+  app.use(express.json());
+  
   console.log("creating service registry")
   const serviceRegistry: IServiceRegistry = new ServiceRegistry(config);
-
-  app.use(express.json());
-
   const todoController = new TodoController(serviceRegistry);
-
 
   app.get('/todos', todoController.getAllTodos);
   app.get('/todos/:id', todoController.getTodoById);

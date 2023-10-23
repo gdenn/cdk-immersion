@@ -36,13 +36,13 @@ export class TodoController {
 
   public async createTodo(req: Request<ICreateTodoRequest>, res: Response) {
     const todo: ITodo = {
-      id: "", // will be set by the service
+      id: "", // will be set by the repo
       title: req.body.title,
       description: req.body.description,
       done: false,
     };
-    
-    console.log(`creating todo: ${JSON.stringify(todo)}`);
+
+    console.log(`this.serviceRegistry: ${JSON.stringify(this.serviceRegistry)}`);
   
     await this.serviceRegistry.todoService().createTodo(todo);
     res.sendStatus(200);
@@ -51,12 +51,15 @@ export class TodoController {
   public async getAllTodos(_: Request<IGetAllTodosRequest>, res: Response) {
 
     const todos = await this.serviceRegistry.todoService().getTodos();
-    console.log(`returning todos: ${JSON.stringify(todos)}`);
+    console.debug(`todo.controller: returning todos: ${JSON.stringify(todos)}`);
     res.send(todos);
   }
 
   public async getTodoById(req: Request<IGetTodoByIdRequest>, res: Response) {
+    
     const todo = await this.serviceRegistry.todoService().getTodoById(req.params.id);
+    console.debug(`todo.controller: returning todo: ${JSON.stringify(todo)}`);
+
     if (!todo) {
       res.sendStatus(404);
     } else {
@@ -65,6 +68,9 @@ export class TodoController {
   }
 
   public async updateTodo(req: Request<IUpdateTodoRequest>, res: Response) {
+
+    console.debug(`todo.controller: updating todo: ${JSON.stringify(req.body)}`);
+
     await this.serviceRegistry.todoService().updateTodo(req.params.id, {
       id: "", // will be ignored
       title: req.body.title,
@@ -75,6 +81,8 @@ export class TodoController {
   }
 
   public async deleteTodo(req: Request<IDeleteTodoRequest>, res: Response) {
+
+    console.debug(`todo.controller: deleting todo: ${req.params.id}`)
     await this.serviceRegistry.todoService().deleteTodo(
       req.params.id
     );
