@@ -1,4 +1,3 @@
-
 /**
  * Todo Entity interface type
  */

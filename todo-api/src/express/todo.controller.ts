@@ -1,3 +1,4 @@
+import { Express } from "express";
 import { Request, Response } from "express";
 import { ITodo } from "../entity";
 import { IServiceRegistry } from "../service";
@@ -26,12 +27,28 @@ interface IDeleteTodoRequest {
   id: string;
 }
 
+export const createTodoRoutes = (app: Express, serviceRegistry: IServiceRegistry) => {
+  const todoController = new TodoController(serviceRegistry);
+
+  app.get('/todos', todoController.getAllTodos);
+  app.get('/todos/:id', todoController.getTodoById);
+  app.post('/todos', todoController.createTodo);
+  app.put('/todos/:id', todoController.updateTodo);
+  app.delete('/todos/:id', todoController.deleteTodo);
+}
+
 export class TodoController {
 
   private readonly serviceRegistry: IServiceRegistry;
 
   constructor(serviceRegistry: IServiceRegistry) {
     this.serviceRegistry = serviceRegistry;
+
+    this.getAllTodos = this.getAllTodos.bind(this);
+    this.createTodo = this.createTodo.bind(this);
+    this.getTodoById = this.getTodoById.bind(this);
+    this.updateTodo = this.updateTodo.bind(this);
+    this.deleteTodo = this.deleteTodo.bind(this);
   }
 
   public async createTodo(req: Request<ICreateTodoRequest>, res: Response) {
@@ -42,8 +59,6 @@ export class TodoController {
       done: false,
     };
 
-    console.log(`this.serviceRegistry: ${JSON.stringify(this.serviceRegistry)}`);
-  
     await this.serviceRegistry.todoService().createTodo(todo);
     res.sendStatus(200);
   }

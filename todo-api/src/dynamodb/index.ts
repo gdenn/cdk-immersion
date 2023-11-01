@@ -1,3 +1,3 @@
-import { TodoDynoService } from './todo.service.dynamodb';
+import { TodoDynoService } from './todo.dynamodb';
 
 export { TodoDynoService };

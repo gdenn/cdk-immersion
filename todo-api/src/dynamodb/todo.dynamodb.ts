@@ -1,15 +1,54 @@
-// This file contains a DynamoDBTodoRepo implementation that
-// implements the ITodoRepo interface and extends the CrudRepository<TodoDynoDTO>.
-// Code in this file uses the interface ITodo of the high-level Todo entity.
-
-import { v4 as uuidv4 } from 'uuid';
-import * as DynamoDB from 'aws-sdk/clients/dynamodb';
-
-import { ITodo } from "../entity";
+import { v4 as uuidv4 } from "uuid";
+import { DynamoDB } from "aws-sdk";
+import { config } from "../config";
+import { ITodo, Todo } from "../entity";
+import { CrudRepository, IDynoDTO } from "./dynamodb";
 import { ITodoRepo } from "../repo";
+import { ITodoService } from "../service";
 
-import { CrudRepository } from "./dynamodb";
-import { TodoDynoDTO, mapToTodo, mapToTodoDynoDTO } from "./todo.dto.dynamodb";
+/**
+ * Converts a dyno data transfer object to an entity object.
+ */
+export const mapToTodo = (dto: TodoDynoDTO): Todo => ({
+  id: dto.id,
+  title: dto.ti,
+  description: dto.de,
+  done: dto.do,
+});
+
+/**
+ * Converts an entity object to a dyno data transfer object.
+ */
+export const mapToTodoDynoDTO = (todo: Todo): TodoDynoDTO => ({ 
+  id: todo.id,
+  ti: todo.title,
+  de: todo.description,
+  do: todo.done,
+  ca: new Date().toISOString(), 
+  ua: new Date().toISOString(), 
+});
+
+/**
+ * A dyno data transfer object for Todos.
+ * 
+ * The attributes in the dto contains only two letters
+ * to optimize write and read capacity usage and storage costs
+ * in the dynamodb.
+ * 
+ * Dynamodb storage costs and cost of read and write capacity units
+ * include key and attribute names and value size.
+ */
+export class TodoDynoDTO implements IDynoDTO {
+
+  ca!: string;    // created at
+  ua!: string;    // updated at
+
+  id!: string;    // uuid
+
+  ti!: string;    // title
+  de!: string;    // description
+  do!: boolean;   // done flag
+}
 
 /**
  * A DynamoDB implementation of the ITodoRepo interface.
@@ -118,4 +157,40 @@ export class DynamoDBTodoRepo extends CrudRepository<TodoDynoDTO> implements ITo
     }
   }
 
+}
+
+const region = config.dynamodb.region;
+const { tableName, endpoint } = config.dynamodb.tables.todos;
+
+const dynoOptions_: DynamoDB.ClientConfiguration = {
+  region,
+  endpoint,
+}
+
+/**
+ * A DynamoDB implementation of the ITodoService interface.
+ */
+export class TodoDynoService implements ITodoService {
+
+  private readonly repo: ITodoRepo = new DynamoDBTodoRepo(tableName, dynoOptions_);
+
+  public async createTodo(todo: ITodo) {
+    this.repo.createTodo(todo);
+  };
+
+  public async getTodoById(id: string): Promise<ITodo> {
+    return this.repo.getTodoById(id);
+  };
+
+  public async deleteTodo(id: string) {
+    this.repo.deleteTodo(id);
+  };
+
+  public async getTodos(): Promise<ITodo[]> {
+    return await this.repo.getTodos();
+  };
+
+  public async updateTodo(id: string, todo: ITodo) {
+    return await this.repo.updateTodo(id, todo);
+  };
 }

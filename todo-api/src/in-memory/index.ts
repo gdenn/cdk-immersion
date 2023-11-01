@@ -1,3 +1,3 @@
-import { TodoInMemoryService } from './todo.service.in-memory'
+import { TodoInMemoryService } from './todo.in-memory';
 
 export { TodoInMemoryService };
