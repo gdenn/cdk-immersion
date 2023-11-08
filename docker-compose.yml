@@ -1,0 +1,20 @@
+# runs the nextjs frontend application and todo api with a local running dynamodb container
+
+version: '3'
+services:
+
+  todo-api:
+    build: ./todo-api
+    ports:
+      - '3000:3000'
+    network_mode: host
+    container_name: todo-api
+    # environment:
+      # - DYNAMODB_ENDPOINT=http://dynamodb:8000
+  #   depends_on:
+  #     - dynamodb
+
+  # dynamodb:
+  #   image: amazon/dynamodb-local
+  #   ports:
+  #     - '8000:8000'

@@ -2,8 +2,9 @@ import express from 'express';
 
 import { config } from '../config';
 import morgan from 'morgan';
+import cors from 'cors';
 import { IServiceRegistry, ServiceRegistry } from '../service';
-import { TodoController, createTodoRoutes } from './todo.controller';
+import { createTodoRoutes } from './todo.controller';
 
 /**
  * Starts the express service by exposing the REST API endpoints
@@ -19,6 +20,11 @@ export const startExpressService = () => {
   
   // use morgen logging middleware for all requests in debug mode
   app.use(morgan('dev'));
+
+  // use cors middleware for all requests
+  app.use(cors({
+    origin: 'http://localhost:8080', // Allow CORS from http://localhost:8080
+  }));
   
   app.use(express.json());
   

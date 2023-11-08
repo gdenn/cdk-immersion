@@ -3,6 +3,7 @@
 import React from 'react';
 import { TodoProps } from '../todo';
 import { Button, Label, Modal, TextInput } from 'flowbite-react';
+import { useCreateTodo } from './hook';
 
 interface AddTodoModalProps {
   addTodo: (todo: TodoProps) => void;
@@ -13,8 +14,18 @@ interface AddTodoModalProps {
 const AddTodoModal: React.FC<AddTodoModalProps> = ({
   closeModal,
   isModalOpen
-}: AddTodoModalProps) => (
-  <Modal show={isModalOpen} onClose={closeModal}>
+}: AddTodoModalProps) => {
+
+  const {
+    title,
+    setTitle,
+    description,
+    setDescription,
+    onSubmit
+  } = useCreateTodo();
+
+  return (
+    <Modal show={isModalOpen} onClose={closeModal}>
       <Modal.Header>Create new Todo</Modal.Header>
       <Modal.Body>
       <div>
@@ -28,6 +39,8 @@ const AddTodoModal: React.FC<AddTodoModalProps> = ({
           id="small"
           sizing="sm"
           type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
       </div>
       <div>
@@ -41,14 +54,17 @@ const AddTodoModal: React.FC<AddTodoModalProps> = ({
           id="large"
           sizing="lg"
           type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
       </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={closeModal}>Add</Button>
+        <Button onClick={onSubmit}>Add</Button>
         <Button color="gray" onClick={closeModal}>Cancel</Button>
       </Modal.Footer>
     </Modal>
-);
+  );
+}
 
 export default AddTodoModal;
