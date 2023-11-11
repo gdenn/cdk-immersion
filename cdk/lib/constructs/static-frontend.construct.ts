@@ -5,7 +5,7 @@ import { Bucket } from "aws-cdk-lib/aws-s3";
 import { CloudFrontWebDistribution, OriginAccessIdentity } from "aws-cdk-lib/aws-cloudfront";
 import { DockerImage, RemovalPolicy } from "aws-cdk-lib";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
-import { FargateBackend } from "./fargate-backend";
+import { FargateBackend } from "./fargate-backend.construct";
 import { Asset } from "aws-cdk-lib/aws-s3-assets";
 import path = require("path");
 import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";

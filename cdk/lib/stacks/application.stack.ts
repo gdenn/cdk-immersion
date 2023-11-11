@@ -1,7 +1,7 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
-import { FargateBackend } from '../constructs/fargate-backend';
+import { FargateBackend } from '../constructs/fargate-backend.construct';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 
 
