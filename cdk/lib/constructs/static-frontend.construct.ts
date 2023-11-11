@@ -14,22 +14,17 @@ import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 const FRONTEND_OUTPUT_PATH = path.join(__dirname, '..', '..', 'todo-ui', 'out');
 console.log("frontend out path: ", FRONTEND_OUTPUT_PATH)
 
-interface StaticFrontendProps {
-  backend: FargateBackend;
+interface IStaticFrontendProps {
 }
 
 export class StaticFrontend extends Construct {
   private readonly bucket: Bucket;
   private readonly distribution: CloudFrontWebDistribution;
 
-  constructor(scope: Construct, id: string, props: StaticFrontendProps) {
+  constructor(scope: Construct, id: string, props: IStaticFrontendProps) {
     super(scope, id);
 
-    const {
-      backend
-    } = props;
-
-    const backendEndpointURL = backend.getBackendEndpointURL();
+    // const backendEndpointURL = backend.getBackendEndpointURL();
 
     // create a bucket for the static react frontend
     this.bucket = new Bucket(this, "FrontendBucket", {

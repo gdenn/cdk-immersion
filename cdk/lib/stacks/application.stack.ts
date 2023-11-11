@@ -1,17 +1,17 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
-import { FargateBackend } from './fargate-backend';
+import { FargateBackend } from '../constructs/fargate-backend';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 
 
-interface TodoAppProps extends StackProps {
+interface IApplicationStackProps extends StackProps {
   vpc: Vpc
   repository: Repository,
 }
 
-export class TodoApp extends Stack {
-  constructor(scope: Construct, id: string, props: TodoAppProps) {
+export class ApplicationStack extends Stack {
+  constructor(scope: Construct, id: string, props: IApplicationStackProps) {
     super(scope, id, props);
 
     const {
@@ -19,7 +19,7 @@ export class TodoApp extends Stack {
       repository,
     } = props;
 
-    const backend = new FargateBackend(this, "Backend", {
+    new FargateBackend(this, "Backend", {
       vpc,
       repository,
     });

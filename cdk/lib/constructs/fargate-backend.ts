@@ -9,7 +9,7 @@ import { Vpc } from "aws-cdk-lib/aws-ec2";
 import { Duration } from "aws-cdk-lib";
 import { Repository } from "aws-cdk-lib/aws-ecr";
 
-interface FargateBackendProps {
+interface IFargateBackendProps {
   vpc: Vpc;
   repository: Repository;
 }
@@ -17,7 +17,7 @@ interface FargateBackendProps {
 export class FargateBackend extends Construct {
   private readonly service: ApplicationLoadBalancedFargateService;
 
-  constructor(scope: Construct, id: string, props: FargateBackendProps) {
+  constructor(scope: Construct, id: string, props: IFargateBackendProps) {
     super(scope, id);
 
     const {
