@@ -6,8 +6,10 @@ import { ApplicationLoadBalancedFargateService } from "aws-cdk-lib/aws-ecs-patte
 import { Cluster } from "aws-cdk-lib/aws-ecs";
 import { ContainerImage } from "aws-cdk-lib/aws-ecs";
 import { Vpc } from "aws-cdk-lib/aws-ec2";
-import { Duration } from "aws-cdk-lib";
+import { CfnOutput, Duration } from "aws-cdk-lib";
 import { Repository } from "aws-cdk-lib/aws-ecr";
+import { StringParameter } from "aws-cdk-lib/aws-ssm";
+import { config } from "../config/config";
 
 interface IFargateBackendProps {
   vpc: Vpc;
@@ -31,36 +33,47 @@ export class FargateBackend extends Construct {
     });
 
     // get the container image from the ECr repository
-    const image = ContainerImage.fromEcrRepository(repository, "todo-api-latest");
+    const image = ContainerImage.fromEcrRepository(repository, config.application.fargate.containerImageTag);
 
     // create a load balanced fargate service for our backend
     this.service = new ApplicationLoadBalancedFargateService(this, "BackendService", {
       cluster: cluster,
-      cpu: 256,
-      desiredCount: 1,
-      memoryLimitMiB: 512,
+      cpu: config.application.fargate.cpu,
+      desiredCount: config.application.fargate.desiredCount,
+      memoryLimitMiB: config.application.fargate.memoryLimitMiB,
       publicLoadBalancer: true,
       taskImageOptions: {
         image,
-        containerPort: 3000,
+        containerPort: config.application.fargate.containerPort,
       },
     });
 
+    // grant the task role access to the ECR repository
     repository.grantPull(this.service.taskDefinition.taskRole);
     repository.grant(this.service.taskDefinition.taskRole, 'ecr:GetAuthorizationToken');
     
-
-    // grant task permission to read the container image from cdk asset bucket
-
+    // create a scaling policy for the service
     const scaling = this.service.service.autoScaleTaskCount({
-      minCapacity: 1,
-      maxCapacity: 10,
+      minCapacity: config.application.fargate.minCapacity,
+      maxCapacity: config.application.fargate.maxCapacity,
     });
     
+    // set target tracking policy for the service
     scaling.scaleOnCpuUtilization('CpuScaling', {
-      targetUtilizationPercent: 50,
-      scaleInCooldown: Duration.seconds(60),
-      scaleOutCooldown: Duration.seconds(60),
+      targetUtilizationPercent: config.application.fargate.targetCpuUtilizationPercent,
+      scaleInCooldown: config.application.fargate.scalingCooldown,
+      scaleOutCooldown: config.application.fargate.scalingCooldown,
+    });
+
+    // save the load balancer url as a cdk output
+    new CfnOutput(this, "BackendServiceURL", {
+      value: this.service.loadBalancer.loadBalancerDnsName,
+    });
+
+    // save the load balancer url as a SSM config param
+    new StringParameter(this, "BackendServiceURLParam", {
+      parameterName: config.application.ssm.backendUrl,
+      stringValue: this.service.loadBalancer.loadBalancerDnsName,
     });
   }
 
